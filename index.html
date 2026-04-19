@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فستان الأحلام 💍</title>
+<link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&family=Amiri:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --night:  #0d0814;
+    --deep:   #150d20;
+    --rose:   #8b1a4a;
+    --gold:   #c8980f;
+    --bright: #ffd700;
+    --blush:  #f5c6d8;
+    --cream:  #fff8f0;
+    --soft:   #fce4ec;
+    --mauve:  #d4a0b8;
+  }
+
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    font-family: 'Amiri', serif;
+    background: var(--night);
+  }
+
+  #canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+  #app {
+    position: relative; z-index: 1;
+    width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── screens ── */
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 2rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity .8s ease;
+    background: radial-gradient(ellipse at 50% 35%, #2a0d1e 0%, var(--night) 68%);
+  }
+  .screen.active { opacity: 1; pointer-events: all; }
+
+  /* bg dress silhouette */
+  .bg-deco {
+    position: absolute; pointer-events: none;
+    font-size: 13rem; opacity: .04;
+    user-select: none; line-height: 1;
+    animation: bg-drift 18s ease-in-out infinite alternate;
+  }
+  .bg-deco.left  { bottom: -3rem; left: -2rem; transform: rotate(12deg); }
+  .bg-deco.right { top: -2rem;   right: -2rem; transform: rotate(-14deg); }
+  @keyframes bg-drift {
+    0%   { transform: rotate(12deg) scale(1); }
+    100% { transform: rotate(16deg) scale(1.06); }
+  }
+
+  /* rings — rose tint */
+  .ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(180,80,120,.2);
+    animation: pulse-ring 4.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .ring:nth-child(3) { width: 300px; height: 300px; animation-delay: 0s; }
+  .ring:nth-child(4) { width: 470px; height: 470px; animation-delay: .9s; }
+  .ring:nth-child(5) { width: 640px; height: 640px; animation-delay: 1.8s; }
+  @keyframes pulse-ring {
+    0%,100% { transform: scale(1);    opacity: .22; }
+    50%      { transform: scale(1.05); opacity: .52; }
+  }
+
+  /* orbs */
+  .orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(90px); pointer-events: none;
+    animation: orb-drift ease-in-out infinite alternate;
+  }
+  .orb1 { width: 400px; height: 400px; background: rgba(139,26,74,.28); top: -12%; left: -12%; animation-duration: 8s; }
+  .orb2 { width: 300px; height: 300px; background: rgba(200,152,15,.12); bottom: 0; right: -8%; animation-duration: 6s; }
+  .orb3 { width: 260px; height: 260px; background: rgba(245,198,216,.1); top: 25%; right: 8%; animation-duration: 7s; }
+  @keyframes orb-drift {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(28px,38px) scale(1.12); }
+  }
+
+  /* question text */
+  .q-number {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.05rem; color: var(--blush);
+    letter-spacing: .2em; margin-bottom: .6rem;
+    text-shadow: 0 0 18px rgba(245,198,216,.65);
+    position: relative; z-index: 2;
+  }
+  .q-text {
+    font-family: 'Amiri', serif;
+    font-size: clamp(1.5rem, 3.8vw, 2.3rem);
+    color: var(--cream); text-align: center;
+    text-shadow: 0 2px 22px rgba(180,80,120,.45);
+    max-width: 640px; line-height: 1.85;
+    margin-bottom: 2.5rem;
+    position: relative; z-index: 2;
+  }
+  .q-sub {
+    font-size: .95rem; color: var(--mauve);
+    text-align: center; margin-top: -.8rem;
+    margin-bottom: 2.5rem; opacity: .75;
+    position: relative; z-index: 2;
+  }
+
+  /* choices */
+  .choices {
+    display: flex; flex-wrap: wrap;
+    gap: 1rem; justify-content: center;
+    max-width: 700px; position: relative; z-index: 2;
+  }
+  .choice {
+    padding: .9rem 2.1rem;
+    border: 1.5px solid rgba(180,80,120,.38);
+    border-radius: 50px;
+    background: rgba(180,80,120,.06);
+    color: var(--cream);
+    font-family: 'Amiri', serif; font-size: 1.1rem;
+    cursor: pointer; backdrop-filter: blur(8px);
+    transition: all .35s cubic-bezier(.34,1.56,.64,1);
+    position: relative; overflow: hidden;
+  }
+  .choice::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(180,80,120,.25), rgba(200,152,15,.15));
+    opacity: 0; transition: opacity .3s;
+  }
+  .choice:hover {
+    border-color: var(--blush); color: var(--blush);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 14px 44px rgba(180,80,120,.35), 0 0 0 1px rgba(245,198,216,.25);
+  }
+  .choice:hover::before { opacity: 1; }
+  .choice:active { transform: scale(.97); }
+
+  /* dots */
+  .dots {
+    position: fixed; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: .65rem; z-index: 10;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(180,80,120,.22);
+    transition: all .4s ease;
+  }
+  .dot.done   { background: var(--rose); }
+  .dot.active { background: var(--blush); transform: scale(1.45);
+                box-shadow: 0 0 10px var(--blush); }
+
+  /* wipe — seamless dark */
+  #wipe {
+    position: fixed; inset: 0; z-index: 50;
+    background: var(--night);
+    transform: scale(0); border-radius: 50%;
+    pointer-events: none;
+    transition: transform .55s cubic-bezier(.7,0,.3,1), border-radius .55s ease, opacity .3s ease .45s;
+    opacity: 1;
+  }
+  #wipe.open  { transform: scale(3); border-radius: 0; opacity: 1;
+    transition: transform .5s cubic-bezier(.7,0,.3,1); }
+  #wipe.close { transform: scale(0); border-radius: 50%; opacity: 0;
+    transition: transform .5s .1s cubic-bezier(.7,0,.3,1), opacity .3s .5s ease; }
+
+  /* screen entrance */
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(32px) scale(.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .screen.active .q-number  { animation: slide-in .6s .1s both; }
+  .screen.active .q-text    { animation: slide-in .6s .26s both; }
+  .screen.active .q-sub     { animation: slide-in .6s .36s both; }
+  .screen.active .choices   { animation: slide-in .6s .46s both; }
+  .screen.active .choice:nth-child(1) { animation: slide-in .5s .52s both; }
+  .screen.active .choice:nth-child(2) { animation: slide-in .5s .64s both; }
+  .screen.active .choice:nth-child(3) { animation: slide-in .5s .76s both; }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── WELCOME SCREEN ── */
+  #screen-welcome {
+    background: radial-gradient(ellipse at 50% 38%, #2a0d1e 0%, var(--night) 68%);
+  }
+  .welcome-icon {
+    font-size: clamp(3.5rem, 11vw, 5.5rem);
+    margin-bottom: 1rem;
+    position: relative; z-index: 5;
+    filter: drop-shadow(0 0 35px rgba(245,198,216,.55));
+    animation: icon-float 5s ease-in-out infinite;
+  }
+  @keyframes icon-float {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50%     { transform: translateY(-16px) rotate(5deg); }
+  }
+  .welcome-title {
+    font-family: 'Scheherazade New', serif; font-weight: 700;
+    font-size: clamp(2.2rem, 8vw, 5rem);
+    background: linear-gradient(140deg, #fff8f0 10%, #f5c6d8 50%, #c8980f 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(245,198,216,.45));
+    text-align: center; line-height: 1.3;
+    position: relative; z-index: 5;
+    opacity: 0; animation: fade-up 1s ease .4s forwards;
+  }
+  .welcome-sub {
+    font-family: 'Amiri', serif; color: var(--mauve);
+    font-size: clamp(1rem, 3vw, 1.45rem);
+    text-align: center; margin-top: 1.2rem;
+    line-height: 2; opacity: 0;
+    animation: fade-up .9s ease 1.2s forwards;
+    position: relative; z-index: 5;
+    max-width: 560px;
+    text-shadow: 0 0 16px rgba(245,198,216,.2);
+  }
+  .welcome-stars {
+    font-size: 1.5rem; margin-top: 1.4rem; letter-spacing: .4em;
+    opacity: 0; animation: fade-up .6s ease 1.9s forwards;
+    position: relative; z-index: 5;
+  }
+  .welcome-btn {
+    margin-top: 2.2rem; padding: 1.1rem 3.2rem;
+    border: 2px solid var(--blush); border-radius: 50px;
+    background: rgba(245,198,216,.07); color: var(--blush);
+    font-family: 'Scheherazade New', serif; font-size: 1.35rem;
+    cursor: pointer; backdrop-filter: blur(8px);
+    opacity: 0; animation: fade-up .8s ease 2.3s forwards;
+    position: relative; z-index: 5;
+    transition: all .3s ease; letter-spacing: .04em;
+  }
+  .welcome-btn:hover {
+    background: rgba(245,198,216,.18);
+    box-shadow: 0 0 40px rgba(245,198,216,.45);
+    transform: scale(1.06);
+  }
+
+  /* ── FINAL LOVE SCREEN ── */
+  #screen-final {
+    background: radial-gradient(ellipse at 50% 30%, #2a0d1e 0%, #0d0814 65%);
+    overflow: hidden;
+  }
+  .eid-emoji-row {
+    font-size: 2.2rem; margin-bottom: 1.2rem;
+    animation: float-ud 4s ease-in-out infinite;
+    position: relative; z-index: 5;
+  }
+  @keyframes float-ud {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-14px); }
+  }
+  .final-calligraphy {
+    font-family: 'Scheherazade New', serif; font-weight: 700;
+    font-size: clamp(3rem, 10vw, 7rem);
+    background: linear-gradient(140deg, #fff8f0 10%, #f5c6d8 40%, #ffd700 70%, #c8980f 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 45px rgba(245,198,216,.6));
+    text-align: center;
+    animation: calli-in 2s cubic-bezier(.16,1,.3,1) both,
+               calli-float 5s ease-in-out 2.2s infinite;
+    position: relative; z-index: 5; line-height: 1.25;
+  }
+  @keyframes calli-in {
+    from { opacity: 0; transform: scale(.25) rotate(-10deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0); }
+  }
+  @keyframes calli-float {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-18px); }
+  }
+  .final-sub {
+    font-family: 'Scheherazade New', serif; color: var(--mauve);
+    font-size: clamp(1.1rem, 3.2vw, 1.75rem);
+    text-align: center; margin-top: 1.3rem;
+    opacity: 0; animation: fade-up .9s ease 2.6s forwards;
+    position: relative; z-index: 5; line-height: 1.7;
+  }
+  .piggy-btn {
+    margin-top: 2.2rem; padding: 1rem 2.8rem;
+    border: 2px solid var(--blush); border-radius: 50px;
+    background: rgba(245,198,216,.08); color: var(--blush);
+    font-family: 'Amiri', serif; font-size: 1.25rem;
+    cursor: pointer; backdrop-filter: blur(8px);
+    opacity: 0; animation: fade-up .7s ease 3.8s forwards;
+    position: relative; z-index: 5; transition: all .3s ease;
+  }
+  .piggy-btn:hover {
+    background: rgba(245,198,216,.2);
+    box-shadow: 0 0 35px rgba(245,198,216,.45);
+    transform: scale(1.06);
+  }
+
+  /* burst */
+  .burst { position: fixed; inset: 0; pointer-events: none; z-index: 4; overflow: hidden; }
+  .burst-item { position: absolute; animation: burst-fly linear both; opacity: 0; }
+  @keyframes burst-fly {
+    0%   { opacity: 1; transform: translateY(0) scale(0) rotate(0deg); }
+    18%  { opacity: 1; transform: translateY(-65px) scale(1.3) rotate(22deg); }
+    100% { opacity: 0; transform: translateY(-100vh) scale(.4) rotate(380deg); }
+  }
+
+  /* notes */
+  .note {
+    position: fixed; color: rgba(245,198,216,.55);
+    animation: note-float 6.5s ease-in-out infinite;
+    pointer-events: none; z-index: 6;
+  }
+  @keyframes note-float {
+    0%   { transform: translateY(0) rotate(-10deg); opacity: 0; }
+    18%  { opacity: .95; }
+    80%  { opacity: .6; }
+    100% { transform: translateY(-82vh) rotate(18deg) scale(.5); opacity: 0; }
+  }
+
+  /* cursor trail */
+  .cursor-star {
+    position: fixed; pointer-events: none; z-index: 999;
+    animation: cursor-fade .85s ease forwards;
+  }
+  @keyframes cursor-fade {
+    from { opacity: 1; transform: scale(1) translateY(0); }
+    to   { opacity: 0; transform: scale(0) translateY(-28px); }
+  }
+
+  /* ── GIFT BOX SCREEN ── */
+  #screen-piggy {
+    background: radial-gradient(ellipse at 50% 35%, #1e0a18 0%, #0d0814 68%);
+    overflow: hidden;
+  }
+  .piggy-title {
+    font-family: 'Scheherazade New', serif;
+    font-size: clamp(1.3rem, 3.2vw, 2rem);
+    color: var(--blush); text-align: center;
+    margin-bottom: 1.8rem;
+    text-shadow: 0 0 22px rgba(245,198,216,.45);
+    position: relative; z-index: 5;
+    opacity: 0; animation: fade-up .8s ease .3s forwards;
+  }
+  .piggy-stage {
+    position: relative; z-index: 5;
+    display: flex; flex-direction: column; align-items: center;
+    opacity: 0; animation: fade-up 1s ease .6s forwards;
+  }
+
+  /* ── CSS Gift Box ── */
+  .piggy-wrap {
+    position: relative;
+    width: 200px; height: 200px;
+    cursor: pointer;
+    filter: drop-shadow(0 22px 44px rgba(180,80,120,.4));
+    transition: transform .3s ease, filter .3s ease;
+    flex-shrink: 0;
+    perspective: 600px;
+  }
+  .piggy-wrap:hover {
+    filter: drop-shadow(0 28px 55px rgba(245,198,216,.55));
+    transform: scale(1.05) translateY(-5px);
+  }
+  .piggy-wrap.shake {
+    animation: box-shake .55s cubic-bezier(.36,.07,.19,.97) both;
+  }
+  @keyframes box-shake {
+    8%,92%  { transform: translate3d(-4px,0,0) rotate(-1deg); }
+    22%,78% { transform: translate3d( 5px,0,0) rotate( 1deg); }
+    35%,65% { transform: translate3d(-5px,0,0) rotate(-1.5deg); }
+    50%     { transform: translate3d( 5px,0,0) rotate( 1.5deg); }
+  }
+
+  /* box body */
+  .box-body {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200px; height: 130px;
+    background: linear-gradient(160deg, #8b1a4a 0%, #5c0f32 55%, #3a0820 100%);
+    border-radius: 6px 6px 12px 12px;
+    box-shadow: inset 0 3px 0 rgba(245,198,216,.15),
+                inset 0 -6px 18px rgba(0,0,0,.4),
+                0 14px 45px rgba(139,26,74,.55);
+    overflow: hidden;
+  }
+  /* vertical ribbon on body */
+  .box-ribbon-v {
+    position: absolute;
+    width: 22px; top: 0; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #c8980f, #ffd700, #c8980f);
+    box-shadow: 0 0 14px rgba(255,215,0,.4);
+  }
+  /* horizontal ribbon on body */
+  .box-ribbon-h {
+    position: absolute;
+    height: 22px; left: 0; right: 0; top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(180deg, #c8980f, #ffd700, #c8980f);
+    box-shadow: 0 0 14px rgba(255,215,0,.4);
+  }
+
+  /* box lid */
+  .box-lid {
+    position: absolute;
+    top: 0; left: 0;
+    width: 200px; height: 72px;
+    background: linear-gradient(160deg, #b02060 0%, #8b1a4a 55%, #5c0f32 100%);
+    border-radius: 6px 6px 3px 3px;
+    box-shadow: inset 0 4px 0 rgba(245,198,216,.18),
+                0 6px 20px rgba(139,26,74,.45);
+    transform-origin: center bottom;
+    transform-style: preserve-3d;
+    transition: transform .55s cubic-bezier(.16,1,.3,1);
+    z-index: 3;
+    overflow: hidden;
+  }
+  /* lid vertical ribbon */
+  .lid-ribbon-v {
+    position: absolute;
+    width: 22px; top: 0; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #c8980f, #ffd700, #c8980f);
+  }
+  /* bow left loop */
+  .bow-left {
+    position: absolute;
+    width: 48px; height: 38px;
+    background: radial-gradient(ellipse at 55% 45%, #ffd700, #a07010);
+    border-radius: 50% 50% 50% 10%;
+    top: -28px; left: 50%;
+    transform: translateX(-50%) translateX(-24px) rotate(-35deg);
+    box-shadow: inset -3px -3px 8px rgba(0,0,0,.3);
+    z-index: 4;
+  }
+  /* bow right loop */
+  .bow-right {
+    position: absolute;
+    width: 48px; height: 38px;
+    background: radial-gradient(ellipse at 45% 45%, #ffd700, #a07010);
+    border-radius: 50% 50% 10% 50%;
+    top: -28px; left: 50%;
+    transform: translateX(-50%) translateX(-24px) rotate(35deg);
+    box-shadow: inset 3px -3px 8px rgba(0,0,0,.3);
+    z-index: 4;
+  }
+  /* bow knot center */
+  .bow-knot {
+    position: absolute;
+    width: 20px; height: 20px;
+    background: radial-gradient(circle at 40% 40%, #ffe566, #c8980f);
+    border-radius: 50%;
+    top: -10px; left: 50%; transform: translateX(-50%);
+    box-shadow: 0 0 12px rgba(255,215,0,.6), 0 3px 8px rgba(0,0,0,.35);
+    z-index: 5;
+  }
+
+  /* open state */
+  .piggy-wrap.opened .box-lid { transform: rotateX(-65deg); }
+
+  /* inner glow */
+  .box-glow {
+    position: absolute;
+    top: 60px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 50px;
+    background: rgba(245,198,216,0);
+    border-radius: 50%; filter: blur(20px);
+    transition: background .55s ease .25s;
+    pointer-events: none; z-index: 1;
+  }
+  .piggy-wrap.opened .box-glow { background: rgba(245,198,216,.6); }
+
+  /* coin / petal drop */
+  .coin-drop {
+    position: absolute;
+    top: -55px; left: 50%; transform: translateX(-50%);
+    font-size: 1.6rem;
+    animation: coin-fall .9s ease-in forwards;
+    pointer-events: none;
+  }
+  @keyframes coin-fall {
+    0%   { top: -55px; opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+    70%  { top: 18px;  opacity: 1; transform: translateX(-50%) scale(1.2) rotate(280deg); }
+    90%  { top: 22px;  opacity: .3; }
+    100% { top: 22px;  opacity: 0; }
+  }
+
+  .click-hint {
+    font-family: 'Amiri', serif; font-size: 1rem; color: var(--mauve);
+    opacity: .6; text-align: center; margin-top: 1rem;
+    animation: blink 2.2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100% { opacity: .6; } 50% { opacity: .18; } }
+
+  /* reveal card */
+  .reveal-card {
+    margin-top: 1.8rem; padding: 2rem 3.5rem;
+    border: 1px solid rgba(245,198,216,.28);
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(139,26,74,.09), rgba(200,152,15,.07));
+    backdrop-filter: blur(12px); text-align: center;
+    opacity: 0; transform: translateY(22px) scale(.94);
+    transition: all .7s cubic-bezier(.16,1,.3,1);
+    box-shadow: 0 22px 65px rgba(0,0,0,.45), 0 0 0 1px rgba(245,198,216,.1);
+  }
+  .reveal-card.show { opacity: 1; transform: translateY(0) scale(1); }
+  .rlabel {
+    font-family: 'Amiri', serif; font-size: 1rem;
+    color: var(--mauve); opacity: .75; margin-bottom: .3rem;
+  }
+  .rnumber {
+    font-family: 'Scheherazade New', serif;
+    font-size: clamp(1.8rem, 5vw, 2.6rem); color: var(--blush);
+    text-shadow: 0 0 22px rgba(245,198,216,.6);
+    letter-spacing: .18em; direction: ltr; margin-bottom: 1.5rem;
+  }
+  .rdivider {
+    width: 55%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,198,216,.35), transparent);
+    margin: 0 auto 1.5rem;
+  }
+  .rfooter {
+    font-family: 'Amiri', serif; color: var(--mauve);
+    font-size: .9rem; opacity: .55; margin-top: .5rem;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div id="wipe"></div>
+
+<div id="app">
+
+  <!-- ═══ WELCOME ═══ -->
+  <div class="screen active" id="screen-welcome">
+    <div class="bg-deco left">👗</div>
+    <div class="bg-deco right">💍</div>
+    <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div style="position:relative;z-index:5;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <div class="welcome-icon">👗</div>
+      <div class="welcome-title">فستان الأحلام</div>
+      <div class="welcome-sub">
+        زفاف قريب من القلب...<br>
+        واخترتُ لكِ ما يليق بجمالكِ يا شيراز 💛<br>
+        <span style="font-size:.88em;opacity:.7;">قبل أن تكتشفيه، اجتازي هذه الأحجية</span>
+      </div>
+      <div class="welcome-stars">💍 ✨ 👗</div>
+      <button class="welcome-btn" onclick="startJourney()">ابدئي الرحلة 🎁</button>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 0 ═══ -->
+  <div class="screen" id="screen-0">
+    <div class="bg-deco left">🌸</div>
+    <div class="bg-deco right">💐</div>
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="q-number">✦ السؤال الأول ✦</div>
+    <div class="q-text">في حفل زفاف جميل...<br>ما الذي يجعل العروس تتألّق؟</div>
+    <div class="q-sub">اختر ما يسكن قلبك</div>
+    <div class="choices">
+      <div class="choice" onclick="next(0)">ابتسامتها التي تضيء القاعة 😊</div>
+      <div class="choice" onclick="next(0)">فستانها الذي يسرق الأنظار 👗</div>
+      <div class="choice" onclick="next(0)">نظرة الحب في عيونها 💛</div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 1 ═══ -->
+  <div class="screen" id="screen-1">
+    <div class="bg-deco left">💎</div>
+    <div class="bg-deco right">🌺</div>
+    <div class="orb orb1"></div><div class="orb orb3"></div>
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="q-number">✦ السؤال الثاني ✦</div>
+    <div class="q-text">لو كان الفستان كلاماً...<br>ماذا سيقول لمن يرتديه؟</div>
+    <div class="q-sub">الجواب يسكن في روحك أنتِ</div>
+    <div class="choices">
+      <div class="choice" onclick="next(1)">أنتِ أجمل من كلّ وصف 💫</div>
+      <div class="choice" onclick="next(1)">الجمال الحقيقي يأتي من الداخل ✨</div>
+      <div class="choice" onclick="next(1)">اليوم يوم بهجتكِ وسعادتكِ 🌸</div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 2 ═══ -->
+  <div class="screen" id="screen-2">
+    <div class="bg-deco left">🕊️</div>
+    <div class="bg-deco right">💍</div>
+    <div class="orb orb2"></div><div class="orb orb3"></div>
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="q-number">✦ السؤال الثالث ✦</div>
+    <div class="q-text">في أجمل لحظة في الحفل...<br>من تفكّرين فيه أوّلاً؟</div>
+    <div class="q-sub">الجواب الصادق هو الأجمل دائماً</div>
+    <div class="choices">
+      <div class="choice" onclick="next(2)">من أحبّ وأثق به ❤️</div>
+      <div class="choice" onclick="next(2)">من يجعل الأيام أحلى 💛</div>
+      <div class="choice" onclick="next(2)">من لا تكتمل اللحظة بدونه 🌟</div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 3 ═══ -->
+  <div class="screen" id="screen-3">
+    <div class="bg-deco left">🌹</div>
+    <div class="bg-deco right">💐</div>
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="q-number">✦ السؤال الرابع ✦</div>
+    <div class="q-text">ما أجمل هديّة يمكن<br>أن تُقدَّم لامرأة جميلة؟</div>
+    <div class="q-sub">اختاري بقلبك لا بعقلك</div>
+    <div class="choices">
+      <div class="choice" onclick="next(3)">شيء يعكس معرفته بها 💎</div>
+      <div class="choice" onclick="next(3)">هديّة فيها روح وتفكير 🎁</div>
+      <div class="choice" onclick="next(3)">شيء تتذكّره كلّما نظرت إليه 🌹</div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 4 — trigger ═══ -->
+  <div class="screen" id="screen-4">
+    <div class="bg-deco left">👗</div>
+    <div class="bg-deco right">✨</div>
+    <div class="orb orb1"></div><div class="orb orb3"></div>
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="q-number">✦ اللحظة الأخيرة ✦</div>
+    <div class="q-text">هناك شيء انتظر<br>أن يصل إليكِ منذ زمن... 🎁</div>
+    <div class="q-sub">هل أنتِ مستعدّة؟</div>
+    <div class="choices">
+      <div class="choice" onclick="showFinal()"
+        style="font-size:1.3rem;padding:1.1rem 3.2rem;border-color:var(--blush);color:var(--blush);
+               box-shadow:0 0 25px rgba(245,198,216,.2),inset 0 0 20px rgba(245,198,216,.05);">
+        اكشفي الهديّة ✨
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FINAL LOVE SCREEN ═══ -->
+  <div class="screen" id="screen-final">
+    <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+    <div style="position:relative;z-index:5;text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <div class="eid-emoji-row">💍 ✨ 👗 ✨ 💍</div>
+      <div class="final-calligraphy">أحبكِ شيراز</div>
+      <div class="final-sub">
+        أنتِ أجمل شيء حصل في حياتي<br>
+        <span style="font-size:.85em;opacity:.75;">وكلّ مناسبة معكِ تصبح ذكرى لا تُنسى 💛</span>
+      </div>
+      <button class="piggy-btn" onclick="showPiggy()">اكشفي رمز الهديّة 🎁</button>
+    </div>
+    <div class="burst" id="burst"></div>
+  </div>
+
+  <!-- ═══ GIFT BOX SCREEN ═══ -->
+  <div class="screen" id="screen-piggy">
+    <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+    <div class="piggy-title">🎁 هديّتكِ تنتظركِ 🎁</div>
+    <div class="piggy-stage">
+
+      <div class="piggy-wrap" id="piggyWrap" onclick="openPiggy()" title="اضغطي لتكشفي">
+        <!-- bow above lid -->
+        <div class="bow-left"></div>
+        <div class="bow-right"></div>
+        <div class="bow-knot"></div>
+        <!-- lid -->
+        <div class="box-lid">
+          <div class="lid-ribbon-v"></div>
+        </div>
+        <!-- glow -->
+        <div class="box-glow"></div>
+        <!-- body -->
+        <div class="box-body">
+          <div class="box-ribbon-v"></div>
+          <div class="box-ribbon-h"></div>
+        </div>
+      </div>
+
+      <div class="click-hint" id="clickHint">اضغطي على الهديّة لتكشفي الرمز ✨</div>
+
+      <div class="reveal-card" id="revealCard">
+        <div class="rlabel">📞 رقم خاص</div>
+        <div class="rnumber">0781075205</div>
+        <div class="rdivider"></div>
+        <div class="rlabel">🔑 الرمز السري</div>
+        <div class="rnumber">3636</div>
+        <div class="rfooter">هديّتكِ بانتظاركِ يا شيراز 💛</div>
+      </div>
+
+    </div>
+    <div class="burst" id="burst2"></div>
+  </div>
+
+</div>
+
+<!-- Progress dots -->
+<div class="dots" id="dots"></div>
+
+<script>
+// ── State ──
+let currentScreen = 0;
+const TOTAL = 5;
+const wipe = document.getElementById('wipe');
+
+// ── Dots (hidden until journey starts) ──
+const dotsEl = document.getElementById('dots');
+dotsEl.style.display = 'none';
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.id = 'dot-' + i;
+  dotsEl.appendChild(d);
+}
+function updateDots(idx) {
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.className = 'dot' + (i < idx ? ' done' : i === idx ? ' active' : '');
+  }
+}
+
+// ── Navigation ──
+function startJourney() {
+  playMusic();
+  doTransition(() => {
+    document.getElementById('screen-welcome').classList.remove('active');
+    document.getElementById('screen-0').classList.add('active');
+    dotsEl.style.display = 'flex';
+    updateDots(0);
+  });
+}
+
+function next(from) {
+  doTransition(() => {
+    document.getElementById('screen-' + from).classList.remove('active');
+    document.getElementById('screen-' + (from + 1)).classList.add('active');
+    currentScreen = from + 1;
+    updateDots(from + 1);
+  });
+}
+
+function showFinal() {
+  doTransition(() => {
+    document.getElementById('screen-4').classList.remove('active');
+    document.getElementById('screen-final').classList.add('active');
+    dotsEl.style.display = 'none';
+    setTimeout(launchBurst, 700);
+    startNotes();
+  });
+}
+
+function showPiggy() {
+  doTransition(() => {
+    document.getElementById('screen-final').classList.remove('active');
+    document.getElementById('screen-piggy').classList.add('active');
+  });
+}
+
+function doTransition(cb) {
+  wipe.classList.remove('open', 'close');
+  void wipe.offsetWidth;
+  wipe.classList.add('open');
+  setTimeout(() => {
+    cb();
+    wipe.classList.remove('open');
+    wipe.classList.add('close');
+    setTimeout(() => wipe.classList.remove('close'), 700);
+  }, 520);
+}
+
+// ── Gift Box ──
+let piggyOpened = false;
+function openPiggy() {
+  if (piggyOpened) return;
+  const wrap = document.getElementById('piggyWrap');
+  wrap.classList.add('shake');
+  setTimeout(() => wrap.classList.remove('shake'), 560);
+
+  const DROPS = ['🌸','💍','✨','🌹','💎','💛'];
+  for (let i = 0; i < 7; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'coin-drop';
+      c.textContent = DROPS[Math.floor(Math.random() * DROPS.length)];
+      c.style.left = (30 + Math.random() * 40) + '%';
+      wrap.appendChild(c);
+      setTimeout(() => c.remove(), 1000);
+    }, i * 100);
+  }
+
+  setTimeout(() => {
+    wrap.classList.add('opened');
+    piggyOpened = true;
+    document.getElementById('clickHint').style.display = 'none';
+    document.getElementById('revealCard').classList.add('show');
+    launchBurst2();
+  }, 750);
+}
+
+// ── Canvas: petals & diamonds ──
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+let parts    = [];
+
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function mkPart() {
+  const type = Math.random() < .25 ? 'diamond' : 'petal';
+  return {
+    x: Math.random() * canvas.width,
+    y: -20,
+    sz: type === 'diamond' ? 5 + Math.random() * 8 : 5 + Math.random() * 9,
+    vy: .38 + Math.random() * .85,
+    vx: (Math.random() - .5) * .55,
+    rot: Math.random() * Math.PI * 2,
+    rSpeed: (Math.random() - .5) * .03,
+    op: .28 + Math.random() * .55,
+    tw: Math.random() * Math.PI * 2,
+    twS: .018 + Math.random() * .04,
+    type
+  };
+}
+
+for (let i = 0; i < 60; i++) {
+  const p = mkPart(); p.y = Math.random() * canvas.height; parts.push(p);
+}
+
+function animParts() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  parts.forEach(p => {
+    p.y  += p.vy;
+    p.x  += p.vx + Math.sin(p.y * .014) * .28;
+    p.rot += p.rSpeed;
+    p.tw  += p.twS;
+    if (p.y > canvas.height + 30) Object.assign(p, mkPart());
+
+    const tw = .65 + Math.sin(p.tw) * .35;
+    ctx.save();
+    ctx.globalAlpha = p.op * tw;
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+
+    if (p.type === 'diamond') {
+      ctx.fillStyle = `rgba(245,198,216,0.9)`;
+      ctx.beginPath();
+      ctx.moveTo(0, -p.sz);
+      ctx.lineTo(p.sz * .6, 0);
+      ctx.lineTo(0, p.sz);
+      ctx.lineTo(-p.sz * .6, 0);
+      ctx.closePath(); ctx.fill();
+    } else {
+      // petal
+      const hue = 330 + Math.random() * 30;
+      ctx.fillStyle = `hsl(${hue},70%,78%)`;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, p.sz * .45, p.sz, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+  requestAnimationFrame(animParts);
+}
+animParts();
+
+// ── Burst ──
+const WEDDING_EMOJIS = ['💍','👗','🌸','✨','💛','🌹','💐','🎊','💫','🕊️','💎','🌺'];
+const GIFT_EMOJIS    = ['💍','💛','🌸','✨','🎁','💐','🎊','💎','🌹','💫'];
+
+function spawnBurst(id, emojis, count, interval) {
+  const b = document.getElementById(id);
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'burst-item';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = (4 + Math.random() * 92) + '%';
+      el.style.top  = (55 + Math.random() * 45) + '%';
+      el.style.fontSize = (1.4 + Math.random() * 2.6) + 'rem';
+      const dur = 2.4 + Math.random() * 3.2;
+      el.style.animationDuration = dur + 's';
+      b.appendChild(el);
+      setTimeout(() => el.remove(), dur * 1000 + 120);
+    }, i * 75);
+  }
+  setInterval(() => {
+    const el = document.createElement('div');
+    el.className = 'burst-item';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = (4 + Math.random() * 92) + '%';
+    el.style.top  = (50 + Math.random() * 50) + '%';
+    el.style.fontSize = (1 + Math.random() * 2) + 'rem';
+    const dur = 3 + Math.random() * 4;
+    el.style.animationDuration = dur + 's';
+    b.appendChild(el);
+    setTimeout(() => el.remove(), dur * 1000 + 120);
+  }, interval);
+}
+
+function launchBurst()  { spawnBurst('burst',  WEDDING_EMOJIS, 60, 500); }
+function launchBurst2() { spawnBurst('burst2', GIFT_EMOJIS,    40, 700); }
+
+// ── Notes ──
+const NOTES = ['♩','♪','♫','♬'];
+function startNotes() {
+  setInterval(() => {
+    const n = document.createElement('div');
+    n.className = 'note';
+    n.textContent = NOTES[Math.floor(Math.random() * 4)];
+    n.style.left = (8 + Math.random() * 84) + '%';
+    n.style.bottom = '-2rem';
+    n.style.fontSize = (.9 + Math.random() * .8) + 'rem';
+    n.style.animationDuration = (4.5 + Math.random() * 4) + 's';
+    document.body.appendChild(n);
+    setTimeout(() => n.remove(), 9000);
+  }, 650);
+}
+
+// ── Music: love.mp3 ──
+let audioPlayer = null;
+function playMusic() {
+  try {
+    audioPlayer = new Audio('love.mp3');
+    audioPlayer.loop = true;
+    audioPlayer.volume = 0;
+    audioPlayer.play();
+    let vol = 0;
+    const fade = setInterval(() => {
+      vol = Math.min(vol + 0.01, 0.35);
+      audioPlayer.volume = vol;
+      if (vol >= 0.35) clearInterval(fade);
+    }, 80);
+  } catch(e) {}
+}
+
+// ── Cursor Trail ──
+const TRAIL = ['💍','✨','🌸','💛','🌹','💫'];
+document.addEventListener('mousemove', e => {
+  if (Math.random() > .11) return;
+  const s = document.createElement('div');
+  s.className = 'cursor-star';
+  s.textContent = TRAIL[Math.floor(Math.random() * TRAIL.length)];
+  s.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;font-size:${.8+Math.random()*.7}rem;`;
+  document.body.appendChild(s);
+  setTimeout(() => s.remove(), 850);
+});
+</script>
+</body>
+</html>
